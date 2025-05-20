@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#F8F6FF">
+
+    <!-- App Title -->
+    <TextView
+        android:id="@+id/app_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Step n' Paws"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#6A5ACD"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Step Progress Circle -->
+    <com.mikhaellopez.circularprogressbar.CircularProgressBar
+        android:id="@+id/stepProgressBar"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_marginTop="24dp"
+        app:cpb_background_progressbar_color="#E0E4FF"
+        app:cpb_background_progressbar_width="12dp"
+        app:cpb_progress_direction="to_right"
+        app:cpb_progressbar_color="#6A5ACD"
+        app:cpb_progressbar_width="12dp"
+        app:cpb_round_border="true"
+        app:layout_constraintTop_toBottomOf="@id/app_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Step Count Display -->
+    <TextView
+        android:id="@+id/stepCountText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#6A5ACD"
+        app:layout_constraintTop_toTopOf="@id/stepProgressBar"
+        app:layout_constraintBottom_toBottomOf="@id/stepProgressBar"
+        app:layout_constraintStart_toStartOf="@id/stepProgressBar"
+        app:layout_constraintEnd_toEndOf="@id/stepProgressBar" />
+
+    <TextView
+        android:id="@+id/stepText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="steps today"
+        android:textSize="16sp"
+        android:textColor="#9E9E9E"
+        app:layout_constraintTop_toBottomOf="@id/stepCountText"
+        app:layout_constraintStart_toStartOf="@id/stepProgressBar"
+        app:layout_constraintEnd_toEndOf="@id/stepProgressBar" />
+
+    <!-- Current Pet Display -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/pet_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/stepProgressBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Background Image - behind everything -->
+            <ImageView
+                android:id="@+id/roomBackground"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/default_bg"
+                android:contentDescription="Current Background"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- Pet Image and Info -->
+            <ImageView
+                android:id="@+id/petImage"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/pet_cat"
+                android:contentDescription="Current pet"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/petName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pet Name"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#6A5ACD"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/petImage" />
+
+            <TextView
+                android:id="@+id/petMood"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mood: Happy"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/petName"
+                app:layout_constraintStart_toEndOf="@id/petImage" />
+
+            <TextView
+                android:id="@+id/petLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Level: 1"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/petMood"
+                app:layout_constraintStart_toEndOf="@id/petImage" />
+
+            <ProgressBar
+                android:id="@+id/petExpProgress"
+                android:layout_width="0dp"
+                android:layout_height="8dp"
+                android:layout_marginTop="8dp"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                app:layout_constraintTop_toBottomOf="@id/petLevel"
+                app:layout_constraintStart_toStartOf="@id/petMood"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:progressTint="#6A5ACD"
+                android:progressBackgroundTint="#E0E4FF"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Navigation Menu -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/menu_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/pet_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <Button
+                android:id="@+id/btn_pet_room"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pet Room"
+                android:backgroundTint="#8E7AFF"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"
+                app:cornerRadius="12dp" />
+
+            <Button
+                android:id="@+id/btn_shop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Shop"
+                android:backgroundTint="#7AA6FF"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"
+                app:cornerRadius="12dp" />
+
+            <Button
+                android:id="@+id/btn_inventory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Inventory"
+                android:backgroundTint="#95D8A4"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                app:cornerRadius="12dp" />
+
+            <Button
+                android:id="@+id/btn_step_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Step History"
+                android:backgroundTint="#95D8A4"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Date Display -->
+    <TextView
+        android:id="@+id/current_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="April 25, 2025"
+        android:textSize="16sp"
+        android:textColor="#9E9E9E"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
