@@ -41,7 +41,14 @@ public class HomeActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    // Permission granted, start the service
+                    // Permission granted
+                    Log.d(TAG, "Activity recognition permission granted");
+                    
+                    // Reset first launch flag to ensure counter initialization on first sensor reading
+                    SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
+                    prefs.edit().putBoolean("isFirstLaunch", true).apply();
+                    
+                    // Start the service
                     startStepService();
                 } else {
                     // Permission denied, show error
@@ -70,6 +77,7 @@ public class HomeActivity extends AppCompatActivity {
         // Get the saved previousTotalSteps value
         SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
         previousTotalSteps = prefs.getInt("previousTotalSteps", 0);
+        boolean isFirstLaunch = prefs.getBoolean("isFirstLaunch", true);
 
         // Check if we need to initialize for a new day
         String lastDate = prefs.getString("lastDate", "");
@@ -85,6 +93,8 @@ public class HomeActivity extends AppCompatActivity {
                     .apply();
             }
         }
+        
+        Log.d(TAG, "Loaded previousTotalSteps: " + previousTotalSteps + ", isFirstLaunch: " + isFirstLaunch);
     }
 
     @Override
@@ -101,6 +111,25 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onSensorChanged(SensorEvent event) {
             totalSteps = (int) event.values[0];
+
+            // Check if this is the first time receiving sensor data
+            SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
+            boolean isFirstLaunch = prefs.getBoolean("isFirstLaunch", true);
+            
+            if (isFirstLaunch) {
+                // First time - initialize previousTotalSteps to current totalSteps
+                previousTotalSteps = totalSteps;
+                String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                
+                // Save values and mark first launch complete
+                prefs.edit()
+                    .putInt("previousTotalSteps", previousTotalSteps)
+                    .putString("lastDate", today)
+                    .putBoolean("isFirstLaunch", false)
+                    .apply();
+                
+                Log.d(TAG, "First launch - Initializing step counter to: " + totalSteps);
+            }
 
             // This is the key part - subtract the previous total to get today's steps
             int currentSteps = totalSteps - previousTotalSteps;
