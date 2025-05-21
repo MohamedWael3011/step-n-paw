@@ -41,8 +41,20 @@ public class HomeActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
-                    // Permission granted, start the service
-                    startStepService();
+                    try {
+                        // Permission granted
+                        Log.d(TAG, "Activity recognition permission granted");
+                        
+                        // Reset first launch flag to ensure counter initialization on first sensor reading
+                        SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
+                        prefs.edit().putBoolean("isFirstLaunch", true).apply();
+                        
+                        // Start the service
+                        startStepService();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error after permission granted: " + e.getMessage(), e);
+                        Toast.makeText(this, "Error starting step counter: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     // Permission denied, show error
                     Toast.makeText(this, "Permission required for step counting", Toast.LENGTH_LONG).show();
@@ -67,23 +79,32 @@ public class HomeActivity extends AppCompatActivity {
     private ProgressBar petExpProgress;
 
     private void loadInitialStepCount() {
-        // Get the saved previousTotalSteps value
-        SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
-        previousTotalSteps = prefs.getInt("previousTotalSteps", 0);
+        try {
+            // Get the saved previousTotalSteps value
+            SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
+            previousTotalSteps = prefs.getInt("previousTotalSteps", 0);
+            boolean isFirstLaunch = prefs.getBoolean("isFirstLaunch", true);
 
-        // Check if we need to initialize for a new day
-        String lastDate = prefs.getString("lastDate", "");
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+            // Check if we need to initialize for a new day
+            String lastDate = prefs.getString("lastDate", "");
+            String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-        if (!lastDate.equals(today)) {
-            // New day: reset previousTotalSteps to current total steps
-            if (totalSteps > 0) {
-                previousTotalSteps = totalSteps;
-                prefs.edit()
-                    .putInt("previousTotalSteps", previousTotalSteps)
-                    .putString("lastDate", today)
-                    .apply();
+            if (!lastDate.equals(today)) {
+                // New day: reset previousTotalSteps to current total steps
+                if (totalSteps > 0) {
+                    previousTotalSteps = totalSteps;
+                    prefs.edit()
+                        .putInt("previousTotalSteps", previousTotalSteps)
+                        .putString("lastDate", today)
+                        .apply();
+                }
             }
+            
+            Log.d(TAG, "Loaded previousTotalSteps: " + previousTotalSteps + ", isFirstLaunch: " + isFirstLaunch);
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading initial step count: " + e.getMessage(), e);
+            // Ensure we have a valid value even if there's an error
+            previousTotalSteps = 0;
         }
     }
 
@@ -100,24 +121,70 @@ public class HomeActivity extends AppCompatActivity {
     SensorEventListener stepListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            totalSteps = (int) event.values[0];
+            try {
+                if (event == null || event.values == null || event.values.length == 0) {
+                    Log.e(TAG, "Invalid sensor event received");
+                    return;
+                }
+                
+                totalSteps = (int) event.values[0];
 
-            // This is the key part - subtract the previous total to get today's steps
-            int currentSteps = totalSteps - previousTotalSteps;
+                // Check if this is the first time receiving sensor data
+                SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
+                boolean isFirstLaunch = prefs.getBoolean("isFirstLaunch", true);
+                
+                if (isFirstLaunch) {
+                    // First time - initialize previousTotalSteps to current totalSteps
+                    previousTotalSteps = totalSteps;
+                    String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                    
+                    // Save values and mark first launch complete
+                    prefs.edit()
+                        .putInt("previousTotalSteps", previousTotalSteps)
+                        .putString("lastDate", today)
+                        .putBoolean("isFirstLaunch", false)
+                        .apply();
+                    
+                    Log.d(TAG, "First launch - Initializing step counter to: " + totalSteps);
+                }
 
-            // Update the step count text and progress view
-            stepCountText.setText(String.valueOf(currentSteps));
-            stepProgressBar.setProgress(currentSteps);
+                // This is the key part - subtract the previous total to get today's steps
+                int currentSteps = totalSteps - previousTotalSteps;
+                
+                // Ensure we don't have negative steps (can happen if device rebooted)
+                if (currentSteps < 0) {
+                    Log.w(TAG, "Negative step count detected (" + currentSteps + "), resetting to 0");
+                    currentSteps = 0;
+                    // Reset the previous steps
+                    previousTotalSteps = totalSteps;
+                    SharedPreferences prefs2 = getSharedPreferences("StepPrefs", MODE_PRIVATE);
+                    prefs2.edit().putInt("previousTotalSteps", previousTotalSteps).apply();
+                }
 
-            // Get current pet name
-            String currentPet = dbHelper.getCurrentPetName();
+                // Update the step count text and progress view
+                runOnUiThread(() -> {
+                    stepCountText.setText(String.valueOf(currentSteps));
+                    stepProgressBar.setProgress(currentSteps);
+                });
 
-            // Save current steps and update pet mood/exp
-            dbHelper.insertOrUpdateUser(currentSteps, currentPet);
-            dbHelper.addExperienceToPet(currentPet, currentSteps);
+                // Get current pet name
+                String currentPet = dbHelper.getCurrentPetName();
+                if (currentPet == null) {
+                    Log.e(TAG, "Current pet is null");
+                    return;
+                }
 
-            // Refresh pet UI with updated info
-            updatePetDisplay(currentPet, currentSteps);
+                // Save current steps and update pet mood/exp
+                dbHelper.insertOrUpdateUser(currentSteps, currentPet);
+                dbHelper.addExperienceToPet(currentPet, currentSteps);
+
+                // Refresh pet UI with updated info
+                runOnUiThread(() -> {
+                    updatePetDisplay(currentPet, currentSteps);
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "Error in onSensorChanged: " + e.getMessage(), e);
+            }
         }
 
         @Override
@@ -342,8 +409,13 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "onResume called");
         checkDailyReset();
         if (isSensorPresent) {
-            Log.d(TAG, "Registering sensor listener");
-            sensorManager.registerListener(stepListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            try {
+                Log.d(TAG, "Registering sensor listener");
+                sensorManager.registerListener(stepListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            } catch (Exception e) {
+                Log.e(TAG, "Error registering sensor listener: " + e.getMessage(), e);
+                Toast.makeText(this, "Error with step sensor: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         } else {
             Log.d(TAG, "Sensor not present");
         }
