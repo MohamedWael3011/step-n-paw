@@ -243,6 +243,15 @@ public class HomeActivity extends AppCompatActivity {
             case "Pink":
                 roomBackground.setImageResource(R.drawable.bg_pink);
                 break;
+            case "Orange":
+                roomBackground.setImageResource(R.drawable.bg_orange);
+                break;
+            case "Brown":
+                roomBackground.setImageResource(R.drawable.bg_brown);
+                break;
+            case "Blue":
+                roomBackground.setImageResource(R.drawable.bg_blue);
+                break;
             case "default_bg":
                 roomBackground.setImageResource(R.drawable.default_bg);
                 break;

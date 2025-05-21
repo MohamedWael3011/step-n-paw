@@ -75,7 +75,7 @@ public class PetRoomActivity extends AppCompatActivity {
         // Add a small delay and update again to ensure progress bar updates
         petExpProgress.postDelayed(() -> {
             updatePetUI();
-        }, 100);
+        }, 1000);
     }
 
     private void showQuickStatus(String action) {

@@ -94,10 +94,8 @@ public class SimpleStepService extends Service implements SensorEventListener {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
-        }
-        
+        flags |= PendingIntent.FLAG_IMMUTABLE;
+
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this, 0, notificationIntent, flags);
 

@@ -97,6 +97,7 @@ public class PetUtility {
 
         textView.setTextColor(ContextCompat.getColor(textView.getContext(), colorResId));
         textView.setText("Mood: " + mood);
+
     }
 
     /**

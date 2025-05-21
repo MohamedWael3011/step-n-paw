@@ -36,12 +36,17 @@ public class ShopActivity extends AppCompatActivity {
         List<ShopItem> shopItems = new ArrayList<>();
 
         // Add pets
-        shopItems.add(new ShopItem("Dog Pet", "A loyal canine companion", 5000, R.drawable.pet_dog, "pet"));
-        shopItems.add(new ShopItem("Bird Pet", "A cheerful flying friend", 4000, R.drawable.pet_bird, "pet"));
+        shopItems.add(new ShopItem("Rat Pet", "A shy small friend", 5000, R.drawable.pet_rat, "pet"));
+        shopItems.add(new ShopItem("Dog Pet", "A loyal canine companion", 10000, R.drawable.pet_dog, "pet"));
+        shopItems.add(new ShopItem("Bird Pet", "A cheerful flying friend", 15000, R.drawable.pet_bird, "pet"));
 
         // Add backgrounds
         shopItems.add(new ShopItem("Green", "Green scenery", 3000, R.drawable.bg_green, "background"));
         shopItems.add(new ShopItem("Pink", "Pink view", 3500, R.drawable.bg_pink, "background"));
+        shopItems.add(new ShopItem("Orange", "Orange scenery", 4000, R.drawable.bg_orange, "background"));
+        shopItems.add(new ShopItem("Blue", "Blue view", 6000, R.drawable.bg_blue, "background"));
+        shopItems.add(new ShopItem("Brown", "Brown view", 10000, R.drawable.bg_brown, "background"));
+
 
         shopAdapter = new ShopAdapter(shopItems, this::onItemPurchased, dbHelper);
         shopRecyclerView.setLayoutManager(new LinearLayoutManager(this));
