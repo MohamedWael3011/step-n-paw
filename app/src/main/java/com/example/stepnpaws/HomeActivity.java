@@ -2,10 +2,12 @@ package com.example.stepnpaws;
 
 import static com.example.stepnpaws.DatabaseHelper.COLUMN_BG_IMAGE;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -20,7 +22,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
@@ -30,6 +36,18 @@ import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
     private static final String TAG = "HomeActivity";
+    private static final int PERMISSION_REQUEST_CODE = 123;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission granted, start the service
+                    startStepService();
+                } else {
+                    // Permission denied, show error
+                    Toast.makeText(this, "Permission required for step counting", Toast.LENGTH_LONG).show();
+                }
+            });
 
     DatabaseHelper dbHelper;
     private SensorManager sensorManager;
@@ -127,12 +145,10 @@ public class HomeActivity extends AppCompatActivity {
         // Set up step sensor
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
             stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
             isSensorPresent = (stepSensor != null);
             loadInitialStepCount();
-
         }
 
         if (!isSensorPresent) {
@@ -163,8 +179,25 @@ public class HomeActivity extends AppCompatActivity {
             PetUtility.updatePetUI(this, petImage, petName, petMood, petLevel, petExpProgress);
         });
 
-        Intent serviceIntent = new Intent(this, SimpleStepService.class);
+        // Check and request permissions before starting service
+        checkAndRequestPermissions();
+    }
 
+    private void checkAndRequestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION);
+            } else {
+                startStepService();
+            }
+        } else {
+            startStepService();
+        }
+    }
+
+    private void startStepService() {
+        Intent serviceIntent = new Intent(this, SimpleStepService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
         } else {

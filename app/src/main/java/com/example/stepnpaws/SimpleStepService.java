@@ -13,8 +13,10 @@
     import android.hardware.SensorEvent;
     import android.hardware.SensorEventListener;
     import android.hardware.SensorManager;
+    import android.Manifest;
     import android.os.Build;
     import android.os.IBinder;
+    import android.content.pm.PackageManager;
 
     import androidx.core.app.NotificationCompat;
 
@@ -44,7 +46,7 @@
             sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
             if (sensorManager != null) {
                 stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-                if (stepSensor != null) {
+                if (stepSensor != null && checkPermissions()) {
                     sensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
                 }
             }
@@ -73,6 +75,14 @@
                     .build();
 
             startForeground(1, notification);
+        }
+
+        private boolean checkPermissions() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                return checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) 
+                        == PackageManager.PERMISSION_GRANTED;
+            }
+            return true;
         }
 
         @Override
