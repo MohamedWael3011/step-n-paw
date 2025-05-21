@@ -92,22 +92,12 @@
             int previousTotalSteps = prefs.getInt("previousTotalSteps", 0);
             int currentSteps;
 
-            // Check if we need to initialize previousTotalSteps (first run)
-            if (previousTotalSteps == 0) {
-                // Initial run: set previous to current total and save
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putInt("previousTotalSteps", totalSteps);
-                editor.apply();
-                currentSteps = 0;
-            } else {
-                currentSteps = totalSteps - previousTotalSteps;
-            }
-
-            // Check for daily reset
+            // Get today's date
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             String today = dateFormat.format(new Date());
             String lastDate = prefs.getString("lastDate", "");
 
+            // Check if it's a new day
             if (!lastDate.equals(today)) {
                 // New day: reset previousTotalSteps to current total steps
                 SharedPreferences.Editor editor = prefs.edit();
@@ -115,6 +105,9 @@
                 editor.putInt("previousTotalSteps", totalSteps);
                 editor.apply();
                 currentSteps = 0;
+            } else {
+                // Same day: calculate current steps
+                currentSteps = totalSteps - previousTotalSteps;
             }
 
             // Update database with today's steps

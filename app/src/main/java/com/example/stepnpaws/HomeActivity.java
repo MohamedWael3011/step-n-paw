@@ -53,10 +53,19 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
         previousTotalSteps = prefs.getInt("previousTotalSteps", 0);
 
-        // If it's the first time using the app, initialize with the current step count
-        if (previousTotalSteps == 0 && totalSteps > 0) {
-            previousTotalSteps = totalSteps;
-            prefs.edit().putInt("previousTotalSteps", previousTotalSteps).apply();
+        // Check if we need to initialize for a new day
+        String lastDate = prefs.getString("lastDate", "");
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        if (!lastDate.equals(today)) {
+            // New day: reset previousTotalSteps to current total steps
+            if (totalSteps > 0) {
+                previousTotalSteps = totalSteps;
+                prefs.edit()
+                    .putInt("previousTotalSteps", previousTotalSteps)
+                    .putString("lastDate", today)
+                    .apply();
+            }
         }
     }
 
