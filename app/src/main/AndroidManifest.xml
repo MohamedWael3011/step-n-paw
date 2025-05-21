@@ -5,7 +5,10 @@
     <!-- Required permissions -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    
+    <!-- Only include this for Android 14+ -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" 
+        android:minSdkVersion="34" />
 
     <!-- If targeting Android 12+ -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -36,7 +39,7 @@
             android:name=".SimpleStepService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="health"
+            android:foregroundServiceType="location"
             tools:ignore="ForegroundServicePermission" />
     </application>
 

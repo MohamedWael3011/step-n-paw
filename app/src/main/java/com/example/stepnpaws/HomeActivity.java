@@ -184,24 +184,40 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void checkAndRequestPermissions() {
+        Log.d(TAG, "Checking permissions...");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
-                    != PackageManager.PERMISSION_GRANTED) {
+            boolean hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
+                    == PackageManager.PERMISSION_GRANTED;
+            Log.d(TAG, "Activity Recognition permission status: " + hasPermission);
+            
+            if (!hasPermission) {
+                Log.d(TAG, "Requesting Activity Recognition permission");
                 requestPermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION);
             } else {
+                Log.d(TAG, "Permission already granted, starting service");
                 startStepService();
             }
         } else {
+            Log.d(TAG, "Android version < Q, no permission needed");
             startStepService();
         }
     }
 
     private void startStepService() {
+        Log.d(TAG, "Starting step service...");
         Intent serviceIntent = new Intent(this, SimpleStepService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(serviceIntent);
-        } else {
-            startService(serviceIntent);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Log.d(TAG, "Using startForegroundService() for Android O+");
+                startForegroundService(serviceIntent);
+            } else {
+                Log.d(TAG, "Using startService() for pre-Android O");
+                startService(serviceIntent);
+            }
+            Log.d(TAG, "Service started successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error starting service: " + e.getMessage(), e);
+            Toast.makeText(this, "Error starting step counter service: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -314,9 +330,13 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume called");
         checkDailyReset();
         if (isSensorPresent) {
+            Log.d(TAG, "Registering sensor listener");
             sensorManager.registerListener(stepListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        } else {
+            Log.d(TAG, "Sensor not present");
         }
         loadUserData();
         updateBackground();
@@ -325,7 +345,9 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(TAG, "onPause called");
         if(isSensorPresent) {
+            Log.d(TAG, "Unregistering sensor listener");
             sensorManager.unregisterListener(stepListener);
         }
     }
