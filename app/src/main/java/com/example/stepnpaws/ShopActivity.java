@@ -82,18 +82,12 @@ public class ShopActivity extends AppCompatActivity {
     }
 
     private int getCurrentStepBalance() {
-        Cursor cursor = dbHelper.getUser();
-        int steps = 0;
-        if (cursor.moveToFirst()) {
-            steps = cursor.getInt(cursor.getColumnIndexOrThrow("steps"));
-        }
-        cursor.close();
-        return steps;
+        return dbHelper.getAccumulatedSteps();
     }
 
     private void updateStepBalance() {
         int steps = getCurrentStepBalance();
-        stepBalanceText.setText("Step Balance: " + steps);
+        stepBalanceText.setText("Total Steps: " + steps);
     }
 
     @Override

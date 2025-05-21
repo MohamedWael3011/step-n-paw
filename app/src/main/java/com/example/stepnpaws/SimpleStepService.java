@@ -103,30 +103,25 @@
                 currentSteps = totalSteps - previousTotalSteps;
             }
 
-            // Update database with today's steps
-            String currentPet = dbHelper.getCurrentPetName();
-            dbHelper.insertOrUpdateUser(currentSteps, currentPet);
-
-            // Check for daily reset within the service
-            checkDailyReset(totalSteps);
-        }
-
-        private void checkDailyReset(int currentTotalSteps) {
+            // Check for daily reset
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             String today = dateFormat.format(new Date());
-
-            SharedPreferences prefs = getSharedPreferences("StepPrefs", MODE_PRIVATE);
             String lastDate = prefs.getString("lastDate", "");
 
             if (!lastDate.equals(today)) {
                 // New day: reset previousTotalSteps to current total steps
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("lastDate", today);
-                editor.putInt("previousTotalSteps", currentTotalSteps);
+                editor.putInt("previousTotalSteps", totalSteps);
                 editor.apply();
+                currentSteps = 0;
             }
-        }
 
+            // Update database with today's steps
+            String currentPet = dbHelper.getCurrentPetName();
+            dbHelper.insertOrUpdateUser(currentSteps, currentPet);
+            dbHelper.recordDailySteps(currentSteps);
+        }
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}

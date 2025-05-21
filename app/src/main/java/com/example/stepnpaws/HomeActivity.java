@@ -36,7 +36,7 @@ public class HomeActivity extends AppCompatActivity {
     private Sensor stepSensor;
     private boolean isSensorPresent = false;
     private int totalSteps = 0;
-    private int previousTotalSteps = 0; // You can store this if you want reset logic
+    private int previousTotalSteps = 0;
 
     private CircularProgressBar stepProgressBar;
     private TextView stepCountText;
@@ -46,10 +46,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView petLevel;
     private ImageView petImage;
     private ImageView roomBackground;
-
-
     private ProgressBar petExpProgress;
-
 
     private void loadInitialStepCount() {
         // Get the saved previousTotalSteps value
@@ -62,7 +59,6 @@ public class HomeActivity extends AppCompatActivity {
             prefs.edit().putInt("previousTotalSteps", previousTotalSteps).apply();
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -82,7 +78,7 @@ public class HomeActivity extends AppCompatActivity {
             // This is the key part - subtract the previous total to get today's steps
             int currentSteps = totalSteps - previousTotalSteps;
 
-            // Update the step count text
+            // Update the step count text and progress view
             stepCountText.setText(String.valueOf(currentSteps));
             stepProgressBar.setProgress(currentSteps);
 
@@ -100,7 +96,6 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
     };
-
 
     @SuppressLint("CutPasteId")
     @Override
@@ -134,8 +129,6 @@ public class HomeActivity extends AppCompatActivity {
         if (!isSensorPresent) {
             showSensorError();
         }
-
-
 
         stepProgressBar.setProgressMax(10000);
 
@@ -214,14 +207,6 @@ public class HomeActivity extends AppCompatActivity {
             int steps = userCursor.getInt(userCursor.getColumnIndexOrThrow("steps"));
             String currentPetName = dbHelper.getCurrentPetName();
 
-
-//            //REMOVE ITS FOR TESTING
-//
-//            if(steps == 0) {
-//                this.dbHelper.insertOrUpdateUser(5000, currentPetName);
-//            }
-
-
             // Update UI with step data
             stepCountText.setText(String.valueOf(steps));
             stepProgressBar.setProgress(steps);
@@ -287,7 +272,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        checkDailyReset(); // <-- ADD THIS LINE
+        checkDailyReset();
         if (isSensorPresent) {
             sensorManager.registerListener(stepListener, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
@@ -315,4 +300,5 @@ public class HomeActivity extends AppCompatActivity {
             stepCountText.setText("0");
             stepProgressBar.setProgress(0);
         }
-    }}
+    }
+}

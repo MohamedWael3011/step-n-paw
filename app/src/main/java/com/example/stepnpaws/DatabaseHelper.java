@@ -53,7 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // User data (points, current pet)
-        db.execSQL("CREATE TABLE " + TABLE_USER + " (id INTEGER PRIMARY KEY, steps INTEGER, current_pet TEXT, current_background TEXT)");
+        db.execSQL("CREATE TABLE " + TABLE_USER + " (id INTEGER PRIMARY KEY, steps INTEGER, accumulated_steps INTEGER, current_pet TEXT, current_background TEXT)");
 
         // Pets owned - Now includes image_res column
         db.execSQL("CREATE TABLE " + TABLE_PETS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -140,11 +140,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("id", 1); // always user ID = 1
         values.put("steps", steps);
+
+        // Get current accumulated steps
+        int accumulatedSteps = 0;
+        Cursor cursor = db.rawQuery("SELECT accumulated_steps FROM " + TABLE_USER + " WHERE id = 1", null);
+        if (cursor.moveToFirst()) {
+            accumulatedSteps = cursor.getInt(0);
+        }
+        cursor.close();
+
+        // Add today's steps to accumulated steps
+        values.put("accumulated_steps", accumulatedSteps + steps);
         values.put("current_pet", currentPet);
 
         // Get current background WITHOUT closing the database
         String currentBg = null;
-        Cursor cursor = db.rawQuery("SELECT current_background FROM " + TABLE_USER + " WHERE id = 1", null);
+        cursor = db.rawQuery("SELECT current_background FROM " + TABLE_USER + " WHERE id = 1", null);
         if (cursor.moveToFirst()) {
             currentBg = cursor.getString(0);
         }
@@ -433,9 +444,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{bgName});
     }
 
-
-
-
-
+    public int getAccumulatedSteps() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT accumulated_steps FROM " + TABLE_USER + " WHERE id = 1", null);
+        int steps = 0;
+        if (cursor.moveToFirst()) {
+            steps = cursor.getInt(0);
+        }
+        cursor.close();
+        return steps;
+    }
 
 }
