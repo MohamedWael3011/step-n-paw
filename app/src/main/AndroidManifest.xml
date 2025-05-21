@@ -5,6 +5,7 @@
     <!-- Required permissions -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     
     <!-- Only include this for Android 14+ -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" 
@@ -39,7 +40,7 @@
             android:name=".SimpleStepService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="location"
+            android:foregroundServiceType="dataSync"
             tools:ignore="ForegroundServicePermission" />
     </application>
 
